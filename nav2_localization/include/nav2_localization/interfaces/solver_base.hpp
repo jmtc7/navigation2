@@ -60,7 +60,7 @@ public:
    * @param pose The pose at which to initialize the filter
    */
   virtual void initFilter(
-    const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr & pose) = 0;
+    const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr pose) = 0;
 
   /**
      * @brief Configures the solver, during the "Configuring" state of the parent lifecycle node.
@@ -75,7 +75,7 @@ public:
     SampleMotionModel::Ptr & motionSampler,
     Matcher2d::Ptr & matcher,
     const geometry_msgs::msg::TransformStamped & odom,
-    const geometry_msgs::msg::TransformStamped & pose) = 0;
+    const geometry_msgs::msg::PoseWithCovarianceStamped & pose) = 0;
 
   /**
      * @brief Activates the solver, during the "Activating" state of the parent lifecycle node.
@@ -97,7 +97,7 @@ protected:
   SampleMotionModel::Ptr motionSampler_;
   Matcher2d::Ptr matcher_;
   geometry_msgs::msg::TransformStamped prev_odom_;  // Previous pose odometry-based estimation
-  geometry_msgs::msg::TransformStamped prev_pose_;  // Previous pose estimation
+  geometry_msgs::msg::PoseWithCovarianceStamped prev_pose_;  // Previous pose estimation
 };
 }  // namespace nav2_localization
 

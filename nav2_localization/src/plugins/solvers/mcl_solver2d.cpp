@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License. Reserved.
 
+#include "nav2_localization/plugins/solvers/mcl_solver2d.hpp"
+
 #include <vector>
 #include <memory>
+
 #include "pluginlib/class_list_macros.hpp"
 #include "nav2_localization/interfaces/solver_base.hpp"
-#include "nav2_localization/plugins/solvers/mcl_solver2d.hpp"
 #include "nav2_localization/particle_filter.hpp"
 
 namespace nav2_localization
@@ -26,22 +28,24 @@ geometry_msgs::msg::TransformStamped MCLSolver2d::solve(
   const sensor_msgs::msg::PointCloud2::ConstSharedPtr & scan)
 {
   // Motion update
-  pf_->update();
+  pf_->predict(prev_odom_, curr_odom);
   prev_odom_ = curr_odom;
 
   // Measurement update
-  pf_->resample();
+  pf_->update(scan);
 
-  geometry_msgs::msg::TransformStamped curr_pose;
-  // curr_pose = pf_->get_most_likely_pose();
+  geometry_msgs::msg::PoseWithCovarianceStamped curr_pose;
+  curr_pose = pf_->getMostLikelyPose();
 
   prev_pose_ = curr_pose;
 
   return curr_pose;
 }
 
-void MCLSolver2d::initFilter(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr & pose)
-{}
+void MCLSolver2d::initFilter(
+  geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr pose) {
+    pf_->init(1000, *pose); // TODO init # of particles
+  }
 
 void MCLSolver2d::configure(
   const rclcpp_lifecycle::LifecycleNode::SharedPtr & node,
